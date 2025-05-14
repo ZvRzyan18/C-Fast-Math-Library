@@ -27,40 +27,45 @@
 
 //TODO : implement using cpu specific instruction
 
-double cfm_ceil(double x) {
 #if defined(__aarch64__)
- //aarch64 frintp instruction
- __asm__ volatile(
-  "frintp %d[result], %d[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
+
+__asm__(
+ ".type cfm_ceil, @function \n"
+
+ ".global cfm_ceil \n"
+ "cfm_ceil: \n"
+ "frintp d0, d0 \n"
+ "ret \n"
+);
+
+__asm__(
+ ".type cfm_ceilf, @function \n"
+
+ ".global cfm_ceilf \n"
+ "cfm_ceilf: \n"
+ "frintp s0, s0 \n"
+ "ret \n"
+);
+
 #else
-	if(*(uint64_t*)&x & 0x8000000000000000)
+
+
+double cfm_ceil(double x) {
+ if(*(uint64_t*)&x & 0x8000000000000000)
   return (double)(int64_t)x;
-	if((x - (int64_t)x) > 0)
- 	return (double)(((int64_t)x)+1);
+ if((x - (int64_t)x) > 0)
+  return (double)(((int64_t)x)+1);
  return (int64_t)x;
-#endif
 }
 
 
 float cfm_ceilf(float x) {
-#if defined(__aarch64__)
- //aarch64 frintp instruction
- __asm__ volatile(
-  "frintp %s[result], %s[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	if(*(uint32_t*)&x & 0x80000000)
+ if(*(uint32_t*)&x & 0x80000000)
   return (float)(int64_t)x;
-	if((x - (int64_t)x) > 0)
- 	return (float)(((int64_t)x)+1);
+ if((x - (int64_t)x) > 0)
+  return (float)(((int64_t)x)+1);
  return (float)(int64_t)x;
-#endif
 }
+
+#endif
 
