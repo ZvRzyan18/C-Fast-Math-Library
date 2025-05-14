@@ -27,39 +27,42 @@
 
 //TODO : implement using cpu specific instruction
 
+#if defined(__aarch64__)
+
+__asm__(
+ ".type cfm_floor, @function \n"
+
+ ".global cfm_floor \n"
+ "cfm_floor: \n"
+ "frintm d0, d0 \n"
+ "ret \n"
+);
+
+__asm__(
+ ".type cfm_floorf, @function \n"
+
+ ".global cfm_floorf \n"
+ "cfm_floorf: \n"
+ "frintm s0, s0 \n"
+ "ret \n"
+);
+
+#else
 
 double cfm_floor(double x) {
-#if defined(__aarch64__)
- //aarch64 frintm instruction
- __asm__ volatile(
-  "frintm %d[result], %d[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	if(*(uint64_t*)&x & 0x8000000000000000) {
-	 return	(double)(((int64_t)x)-1);
-	}
-	return (double)(uint64_t)x;
-#endif
+ if(*(uint64_t*)&x & 0x8000000000000000) {
+  return (double)(((int64_t)x)-1);
+ }
+ return (double)(uint64_t)x;
 }
 
 
 float cfm_floorf(float x) {
-#if defined(__aarch64__)
- //aarch64 frintm instruction
- __asm__ volatile(
-  "frintm %s[result], %s[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	if(*(uint32_t*)&x & 0x80000000) {
-	 return	(float)(((int64_t)x)-1);
-	}
-	return (float)(uint64_t)x;
-#endif
+ if(*(uint32_t*)&x & 0x80000000) {
+  return (float)(((int64_t)x)-1);
+ }
+ return (float)(uint64_t)x;
 }
+
+#endif
 
