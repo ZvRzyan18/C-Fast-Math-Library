@@ -26,47 +26,51 @@
 #include <stdint.h>
 
 //TODO : implement using cpu specific instruction
+#if defined(__aarch64__)
+
+__asm__(
+//".p2align	2 \n"
+ ".type cfm_round, @function \n"
+
+ ".global cfm_round \n"
+ "cfm_round: \n"
+ "frintn d0, d0 \n"
+ "ret \n"
+);
+
+__asm__(
+ ".type cfm_roundf, @function \n"
+
+ ".global cfm_roundf \n"
+ "cfm_roundf: \n"
+ "frintn s0, s0 \n"
+ "ret \n"
+);
+
+#else
 
 double cfm_round(double x) {
-#if defined(__aarch64__)
- //aarch64 frintn instruction
- __asm__ volatile(
-  "frintn %d[result], %d[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	if(*(uint64_t*)&x & 0x8000000000000000) {
- 	if((-x - (int64_t)-x) >= 0.5)
- 	 return (double)(((int64_t)x)-1);
+ if(*(uint64_t*)&x & 0x8000000000000000) {
+  if((-x - (int64_t)-x) >= 0.5)
+   return (double)(((int64_t)x)-1);
  return (double)((int64_t)x);
-	}
-	if((x - (int64_t)x) > 0.5)
- 	return (double)(((uint64_t)x)+1);
+ }
+ if((x - (int64_t)x) > 0.5)
+  return (double)(((uint64_t)x)+1);
  return (double)((uint64_t)x);
-#endif
 }
 
 
 float cfm_roundf(float x) {
-#if defined(__aarch64__)
- //aarch64 frintn instruction
- __asm__ volatile(
-  "frintn %s[result], %s[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	if(*(uint32_t*)&x & 0x80000000) {
- 	if((-x - (int64_t)-x) >= 0.5f)
- 	 return (float)(((int64_t)x)-1);
+ if(*(uint32_t*)&x & 0x80000000) {
+  if((-x - (int64_t)-x) >= 0.5f)
+   return (float)(((int64_t)x)-1);
  return (float)((int64_t)x);
-	}
-	if((x - (int64_t)x) > 0.5)
- 	return (float)(((uint64_t)x)+1);
+ }
+ if((x - (int64_t)x) > 0.5)
+  return (float)(((uint64_t)x)+1);
  return (float)((uint64_t)x);
-#endif
 }
+
+#endif
 
