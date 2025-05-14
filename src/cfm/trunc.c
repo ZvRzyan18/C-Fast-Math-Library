@@ -27,30 +27,33 @@
 
 //TODO : implement using cpu specific instruction
 
-double cfm_trunc(double x) {
 #if defined(__aarch64__)
- //aarch64 frintz instruction
- __asm__ volatile(
-  "frintz %d[result], %d[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
+__asm__(
+ ".type cfm_trunc, @function \n"
+
+ ".global cfm_trunc \n"
+ "cfm_trunc: \n"
+ "frintz d0, d0 \n"
+ "ret \n"
+);
+
+__asm__(
+ ".type cfm_truncf, @function \n"
+
+ ".global cfm_truncf \n"
+ "cfm_truncf: \n"
+ "frintz s0, s0 \n"
+ "ret \n"
+);
+
 #else
-	return (double)(int64_t)x;
-#endif
+
+double cfm_trunc(double x) {
+ return (double)(int64_t)x;
 }
 
 float cfm_truncf(float x) {
-#if defined(__aarch64__)
- //aarch64 frintz instruction
- __asm__ volatile(
-  "frintz %s[result], %s[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
-	return (float)(int64_t)x;
-#endif
+ return (float)(int64_t)x;
 }
+
+#endif
