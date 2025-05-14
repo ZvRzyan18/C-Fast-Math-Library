@@ -26,17 +26,29 @@
 #include <stdint.h>
 
 //TODO : implement using cpu specific instruction
+#if defined(__aarch64__)
+
+__asm__(
+ ".type cfm_sqrt, @function \n"
+
+ ".global cfm_sqrt \n"
+ "cfm_sqrt: \n"
+ "fsqrt d0, d0 \n"
+ "ret \n"
+);
+
+__asm__(
+ ".type cfm_sqrtf, @function \n"
+
+ ".global cfm_sqrtf \n"
+ "cfm_sqrtf: \n"
+ "fsqrt s0, s0 \n"
+ "ret \n"
+);
+
+#else
 
 double cfm_sqrt(double x) {
-#if defined(__aarch64__)
- //aarch64 fsqrt instruction
- __asm__ volatile(
-  "fsqrt %d[result], %d[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
 /*
  Quake III fast inv sqrt
 */
@@ -46,20 +58,10 @@ double cfm_sqrt(double x) {
  f = (f * (1.5 - (x_half * f * f)));
  f = (f * (1.5 - (x_half * f * f)));
  return x * f;
-#endif
 }
 
 
 float cfm_sqrtf(float x) {
-#if defined(__aarch64__)
- //aarch64 fsqrt instruction
- __asm__ volatile(
-  "fsqrt %s[result], %s[input]\n"
-  : [result] "=w" (x)
-  : [input] "w" (x)
- );
- return x;
-#else
 /*
  Quake III fast inv sqrt
 */
@@ -69,6 +71,6 @@ float cfm_sqrtf(float x) {
  f = (f * (1.5 - (x_half * f * f)));
  f = (f * (1.5 - (x_half * f * f)));
  return x * f;
-#endif
 }
 
+#endif
