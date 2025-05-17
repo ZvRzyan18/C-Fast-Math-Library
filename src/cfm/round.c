@@ -47,6 +47,31 @@ __asm__(
  "ret \n"
 );
 
+#elif (__x86_64__)
+
+double cfm_round(double x) {
+ __asm__ volatile (
+  "movsd %[input], %%xmm0 \n"
+  "roundsd $0, %%xmm0, %%xmm0 \n"
+  "movss %%xmm0, %[output]"
+  : [output]"=x"(x)
+  : [input] "x"(x)
+ );
+ return x;
+}
+
+float cfm_roundf(float x) {
+ __asm__ volatile (
+  "movsd %[input], %%xmm0 \n"
+  "roundss $0, %%xmm0, %%xmm0 \n"
+  "movss %%xmm0, %[output]"
+  : [output]"=m"(x)
+  : [input] "m"(x)
+ );
+ return x;
+}
+
+
 #else
 
 double cfm_round(double x) {
