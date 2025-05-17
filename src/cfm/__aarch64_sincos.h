@@ -664,6 +664,100 @@ __asm__(
 );
 
 
+__asm__(
+ "__neon_sincosf7: \n"
+ "fmov w2, s0 \n"
+ "mov v0.s[0], w2 \n"
+ "mov v0.s[1], w2 \n"
+
+ "ldr w2, =0xbce8cf62 \n"
+ "mov v1.s[0], w2 \n"
+ "ldr w2, =0xbce8cf77 \n"
+ "mov v1.s[1], w2 \n"
+
+ "ldr w2, =0x3f0f4e8e \n"
+ "mov v2.s[0], w2 \n"
+ "ldr w2, =0x3eaa8229 \n"
+ "mov v2.s[1], w2 \n"
+
+ "ldr w2, =0xc0672c55 \n"
+ "mov v3.s[0], w2 \n"
+ "ldr w2, =0xbf70c6a2 \n"
+ "mov v3.s[1], w2 \n"
+ 
+ "ldr w2, =0x410a61ba \n"
+ "mov v4.s[0], w2 \n"
+ "ldr w2, =0xbedbe035 \n"
+ "mov v4.s[1], w2 \n"
+
+ "ldr w2, =0xc0c3876d \n"
+ "mov v5.s[0], w2 \n"
+ "ldr w2, =0x4004c269 \n"
+ "mov v5.s[1], w2 \n"
+
+ "fmla v2.2s, v1.2s, v0.2s \n"
+ "fmla v3.2s, v0.2s, v2.2s \n"
+ "fmla v4.2s, v0.2s, v3.2s \n"
+ "fmla v5.2s, v0.2s, v4.2s \n"
+ 
+ "mov w2, v5.s[0] \n"
+ "fmov s0, w2 \n"
+ "fneg s0, s0 \n"
+ "str s0, [x0] \n"
+
+ "mov w2, v5.s[1] \n"
+ "str w2, [x1] \n"
+ 
+ "ret \n"
+);
+
+__asm__(
+ "__neon_sincosf8: \n"
+ "fmov w2, s0 \n"
+ "mov v0.s[0], w2 \n"
+ "mov v0.s[1], w2 \n"
+
+ "ldr w2, =0xbce8cf62 \n"
+ "mov v1.s[0], w2 \n"
+ "ldr w2, =0x3ce8cf77 \n"
+ "mov v1.s[1], w2 \n"
+
+ "ldr w2, =0x3f02f768 \n"
+ "mov v2.s[0], w2 \n"
+ "ldr w2, =0xbf3d04e3 \n"
+ "mov v2.s[1], w2 \n"
+
+ "ldr w2, =0xc03b8ef7 \n"
+ "mov v3.s[0], w2 \n"
+ "ldr w2, =0x40d576f4 \n"
+ "mov v3.s[1], w2 \n"
+ 
+ "ldr w2, =0x40adcaec \n"
+ "mov v4.s[0], w2 \n"
+ "ldr w2, =0xc1c4a58a \n"
+ "mov v4.s[1], w2 \n"
+
+ "ldr w2, =0xbf848a96 \n"
+ "mov v5.s[0], w2 \n"
+ "ldr w2, =0x41f79b9d \n"
+ "mov v5.s[1], w2 \n"
+
+ "fmla v2.2s, v1.2s, v0.2s \n"
+ "fmla v3.2s, v0.2s, v2.2s \n"
+ "fmla v4.2s, v0.2s, v3.2s \n"
+ "fmla v5.2s, v0.2s, v4.2s \n"
+ 
+ "mov w2, v5.s[0] \n"
+ "fmov s0, w2 \n"
+ "fneg s0, s0 \n"
+ "str s0, [x0] \n"
+
+ "mov w2, v5.s[1] \n"
+ "str w2, [x1] \n"
+ 
+ "ret \n"
+);
+
 extern void __neon_sincosf1(float x, float *_s, float *_c);
 extern void __neon_sincosf2(float x, float *_s, float *_c);
 extern void __neon_sincosf3(float x, float *_s, float *_c);
