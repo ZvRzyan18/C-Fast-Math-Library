@@ -13,6 +13,8 @@ exponential : `cfm_exp`, `cfm_expf`, `cfm_exp2`, `cfm_exp2f`, `cfm_pow`, `cfm_po
 
 trigonometry : `cfm_sin`, `cfm_sinf`, `cfm_cos`, `cfm_cosf`, `cfm_tan`, `cfm_tanf`, `cfm_sincos`, `cfm_sincosf`, `cfm_asin`, `cfm_asinf`, `cfm_acos`, `cfm_acosf`, `cfm_atan`, `cfm_atanf`, `cfm_atan2`, `cfm_atan2f`
 
+hyperbolic trigonometry : `cfm_sinh`, `cfm_sinhf`, `cfm_cosh`, `cfm_coshf`, `cfm_tanh`, `cfm_tanhf`, `cfm_asinh`, `cfm_asinhf`, `cfm_acosh`, `cfm_acoshf`, `cfm_atanh`, `cfm_atanhf`
+
 rounding : `cfm_trunc`, `cfm_truncf`, `cfm_ceil`, `cfm_ceilf`, `cfm_floor`, `cfm_floorf`, `cfm_round`, `cfm_roundf`
 
 remainder : `cfm_fmod`, `cfm_fmodf`, `cfm_drem`, `cfm_dremf`
