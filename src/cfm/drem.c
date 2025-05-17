@@ -29,8 +29,9 @@
 
 //remainder(x, y) = x - round(x / y) * y
 
-double cfm_drem(double x, double y) {
 #if defined(__aarch64__)
+
+double cfm_drem(double x, double y) {
  __asm__ volatile(
   "fdiv d3, %d[input1], %d[input2] \n"
   "frintn d3, d3 \n"
@@ -40,14 +41,9 @@ double cfm_drem(double x, double y) {
   : [input1] "w" (x), [input2] "w" (y)
  );
  return x;
-#else
-	return x - cfm_round(x / y) * y;
-#endif
 }
 
-
 float cfm_dremf(float x, float y) {
-#if defined(__aarch64__)
  __asm__ volatile(
   "fdiv s3, %s[input1], %s[input2] \n"
   "frintn s3, s3 \n"
@@ -57,8 +53,18 @@ float cfm_dremf(float x, float y) {
   : [input1] "w" (x), [input2] "w" (y)
  );
  return x;
-#else
- return x - cfm_roundf(x / y) * y;
-#endif
 }
+
+#else
+
+double cfm_drem(double x, double y) {
+ return x - cfm_round(x / y) * y;
+}
+
+
+float cfm_dremf(float x, float y) {
+ return x - cfm_roundf(x / y) * y;
+}
+
+#endif
 
