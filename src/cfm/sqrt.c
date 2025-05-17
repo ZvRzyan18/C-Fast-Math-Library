@@ -46,6 +46,31 @@ __asm__(
  "ret \n"
 );
 
+#elif defined(__x86_64__)
+
+
+double cfm_sqrt(double x) {
+ __asm__ volatile (
+  "sqrtsd %[in], %[out]"
+  : [out] "=x" (x)
+  : [in] "x" (x)
+  : "xmm0"
+ );
+ return x;
+}
+
+float cfm_sqrtf(float x) {
+ __asm__ volatile (
+  "movss %[in], %%xmm0 \n"
+  "sqrtss %%xmm0, %%xmm0 \n"
+  "movss %%xmm0, %[out]"
+  : [out] "=m" (x)
+  : [in] "m" (x)
+  : "xmm0"
+ );
+ return x;
+}
+
 #else
 
 double cfm_sqrt(double x) {
