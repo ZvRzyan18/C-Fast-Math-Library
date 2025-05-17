@@ -23,7 +23,7 @@
 */
 
 #include "cfm/math.h"
-#include <stdlib.h>
+#include <stdint.h>
 
 double cfm_cos(double x) {
  if((*(uint64_t*)&x) & 0x8000000000000000)
