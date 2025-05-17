@@ -34,8 +34,10 @@
  
  hypot(x, y) = sqrt(dot())
 */
-double cfm_hypot(double x, double y) {
+
 #if defined(__aarch64__)
+
+double cfm_hypot(double x, double y) {
  __asm__ volatile(
   "fmul d3, %d[input1], %d[input1] \n"
   "fmul d4, %d[input2], %d[input2] \n"
@@ -45,14 +47,10 @@ double cfm_hypot(double x, double y) {
   : [input1] "w" (x), [input2] "w" (y)
  );
  return x;
-#else
-	return cfm_sqrt(x * x + y * y);
-#endif
 }
 
 
 float cfm_hypotf(float x, float y) {
-#if defined(__aarch64__)
  __asm__ volatile(
   "fmul s3, %s[input1], %s[input1] \n"
   "fmul s4, %s[input2], %s[input2] \n"
@@ -62,8 +60,18 @@ float cfm_hypotf(float x, float y) {
   : [input1] "w" (x), [input2] "w" (y)
  );
  return x;
-#else
-	return cfm_sqrtf(x * x + y * y);
-#endif
 }
+
+#else 
+
+double cfm_hypot(double x, double y) {
+ return cfm_sqrt(x * x + y * y);
+}
+
+
+float cfm_hypotf(float x, float y) {
+ return cfm_sqrtf(x * x + y * y);
+}
+
+#endif
 
