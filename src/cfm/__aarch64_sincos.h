@@ -1422,14 +1422,14 @@ __asm__(
  "ret \n"
 );
 
-void __neon_sincosf1(float x, float *_s, float *_c);
-void __neon_sincosf2(float x, float *_s, float *_c);
-void __neon_sincosf3(float x, float *_s, float *_c);
-void __neon_sincosf4(float x, float *_s, float *_c);
-void __neon_sincosf5(float x, float *_s, float *_c);
-void __neon_sincosf6(float x, float *_s, float *_c);
-void __neon_sincosf7(float x, float *_s, float *_c);
-void __neon_sincosf8(float x, float *_s, float *_c);
+extern void __neon_sincosf1(float x, float *_s, float *_c);
+extern void __neon_sincosf2(float x, float *_s, float *_c);
+extern void __neon_sincosf3(float x, float *_s, float *_c);
+extern void __neon_sincosf4(float x, float *_s, float *_c);
+extern void __neon_sincosf5(float x, float *_s, float *_c);
+extern void __neon_sincosf6(float x, float *_s, float *_c);
+extern void __neon_sincosf7(float x, float *_s, float *_c);
+extern void __neon_sincosf8(float x, float *_s, float *_c);
 
 
-￼Enter
+
