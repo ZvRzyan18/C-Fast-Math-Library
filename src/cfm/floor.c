@@ -56,6 +56,7 @@ double cfm_floor(double x) {
   "movss %%xmm0, %[output]"
   : [output]"=x"(x)
   : [input] "x"(x)
+  : "xmm0"
  );
  return x;
 }
@@ -67,6 +68,7 @@ float cfm_floorf(float x) {
   "movss %%xmm0, %[output]"
   : [output]"=m"(x)
   : [input] "m"(x)
+  : "xmm0"
  );
  return x;
 }
