@@ -36,40 +36,54 @@
 
 //implemented using asin and sqrt
 
+#define ASIN_0 0.13819359277748702
+#define ASIN_1 0.094813956277301839
+#define ASIN_2 0.014298809020222956
+#define ASIN_3 0.99902850272887345
+#define ASIN_4 1.0488947775378894e-05
+
+#define __asin(x) ((((ASIN_0 * x + ASIN_1) * x + ASIN_2) * x + ASIN_3) * x + ASIN_4)
+
+#define ASINF_0 0.138193f
+#define ASINF_1 0.094813f
+#define ASINF_2 0.014298f
+#define ASINF_3 0.999028f
+#define ASINF_4 1.048894e-05f
+
+#define __asinf(x) ((((ASINF_0 * x + ASINF_1) * x + ASINF_2) * x + ASINF_3) * x + ASINF_4)
+
 double cfm_atan(double x) {
  if((*(uint64_t*)&x) & 0x8000000000000000) {
- 	(*(uint64_t*)&x) &= 0x7FFFFFFFFFFFFFFF;
-  x = (x / cfm_sqrt(1.0 + x * x));
+  x = (x / -cfm_sqrt(1.0 + x * x)); //TODO : x = (x * -inv_sqrt(1.0 + x*x));
   if(x > 0.5) {
    x = cfm_sqrt((1.0 - x) * 0.5);
-   return -(1.57079632679489655800 - 2.0 * ((((0.13819359277748702 * x + 0.094813956277301839) * x + 0.014298809020222956) * x + 0.99902850272887345) * x + 1.0488947775378894e-05));
+   return -(1.57079632679489655800 - 2.0 * __asin(x));
   } 
-  return -((((0.13819359277748702 * x + 0.094813956277301839) * x + 0.014298809020222956) * x + 0.99902850272887345) * x + 1.0488947775378894e-05);
+  return -__asin(x);
  }
- x = (x / cfm_sqrt(1.0 + x * x));
+ x = (x / cfm_sqrt(1.0 + x * x)); //TODO : x = (x * inv_sqrt(1.0 + x*x));
  if(x > 0.5) {
   x = cfm_sqrt((1.0 - x) * 0.5);
-  return 1.57079632679489655800 - 2.0 * ((((0.13819359277748702 * x + 0.094813956277301839) * x + 0.014298809020222956) * x + 0.99902850272887345) * x + 1.0488947775378894e-05);
+  return 1.57079632679489655800 - 2.0 * __asin(x);
  }
- return ((((0.13819359277748702 * x + 0.094813956277301839) * x + 0.014298809020222956) * x + 0.99902850272887345) * x + 1.0488947775378894e-05);
+ return __asin(x);
 }
 
 
 float cfm_atanf(float x) {
  if((*(uint32_t*)&x) & 0x80000000) {
-  (*(uint32_t*)&x) &= 0x7FFFFFFF;
-  x = (x / cfm_sqrtf(1.0f + x * x));
+  x = (x / -cfm_sqrtf(1.0f + x * x)); //TODO : x = (x * -inv_sqrt(1.0 + x*x));
   if(x > 0.5f) {
    x = cfm_sqrtf((1.0f - x) * 0.5f);
-   return -(1.570796f - 2.0f *  ((((0.138193f * x + 0.094813f) * x + 0.014298f) * x + 0.999028f) * x + 1.048894e-05f));
+   return -(1.570796f - 2.0f * __asinf(x));
   } 
- return -((((0.138193f * x + 0.094813f) * x + 0.014298f) * x + 0.999028f) * x + 1.048894e-05f);
+  return -__asinf(x);
  }
- x = (x / cfm_sqrtf(1.0f + x * x));
+ x = (x / cfm_sqrtf(1.0f + x * x)); //TODO : x = (x * inv_sqrt(1.0 + x*x));
  if(x > 0.5f) {
   x = cfm_sqrtf((1.0f - x) * 0.5f);
-  return 1.570796f - 2.0f *  ((((0.138193f * x + 0.094813f) * x + 0.014298f) * x + 0.999028f) * x + 1.048894e-05f);
+  return 1.570796f - 2.0f * __asinf(x);
  } 
- return ((((0.138193f * x + 0.094813f) * x + 0.014298f) * x + 0.999028f) * x + 1.048894e-05f);
+ return __asinf(x);
 }
 
