@@ -55,6 +55,7 @@ double cfm_trunc(double x) {
   "movss %%xmm0, %[output]"
   : [output]"=x"(x)
   : [input] "x"(x)
+  : "xmm0"
  );
  return x;
 }
@@ -66,6 +67,7 @@ float cfm_truncf(float x) {
   "movss %%xmm0, %[output]"
   : [output]"=m"(x)
   : [input] "m"(x)
+  : "xmm0"
  );
  return x;
 }
