@@ -34,56 +34,65 @@
  atan(x) = acos(1 / √1 + x*x )
 */
 
-//implemented using asin and sqrt
+/*
+ implementation
+ 
+ for |x| <= 1.0
+ 
+ atanPoly(x) = c0 * x + c1 * x² + c2 * x³....
+ 
+ for |x| >= 1.0
+ 
+ atan(x) pi_half - atanPoly(1.0 / x)
+*/
 
-#define ASIN_0 0.13819359277748702
-#define ASIN_1 0.094813956277301839
-#define ASIN_2 0.014298809020222956
-#define ASIN_3 0.99902850272887345
-#define ASIN_4 1.0488947775378894e-05
+#define ATAN_0 0.13810761856371942
+#define ATAN_1 -0.33804446551765377
+#define ATAN_2 -0.018287143230624005
+#define ATAN_3 1.003834535410429
+#define ATAN_4 -0.00010619091421120068
 
-#define __asin(x) ((((ASIN_0 * x + ASIN_1) * x + ASIN_2) * x + ASIN_3) * x + ASIN_4)
+#define __atan(x) ((((ATAN_0 * x + ATAN_1) * x + ATAN_2) * x + ATAN_3) * x + ATAN_4)
 
-#define ASINF_0 0.138193f
-#define ASINF_1 0.094813f
-#define ASINF_2 0.014298f
-#define ASINF_3 0.999028f
-#define ASINF_4 1.048894e-05f
+#define ATANF_0 0.138107f
+#define ATANF_1 -0.338044f
+#define ATANF_2 -0.018287f
+#define ATANF_3 1.003834f
+#define ATANF_4 -0.000106f
 
-#define __asinf(x) ((((ASINF_0 * x + ASINF_1) * x + ASINF_2) * x + ASINF_3) * x + ASINF_4)
+#define __atanf(x) ((((ATANF_0 * x + ATANF_1) * x + ATANF_2) * x + ATANF_3) * x + ATANF_4)
 
 double cfm_atan(double x) {
- if((*(uint64_t*)&x) & 0x8000000000000000) {
-  x = (x / -cfm_sqrt(1.0 + x * x)); //TODO : x = (x * -inv_sqrt(1.0 + x*x));
-  if(x > 0.5) {
-   x = cfm_sqrt((1.0 - x) * 0.5);
-   return -(1.57079632679489655800 - 2.0 * __asin(x));
-  } 
-  return -__asin(x);
- }
- x = (x / cfm_sqrt(1.0 + x * x)); //TODO : x = (x * inv_sqrt(1.0 + x*x));
- if(x > 0.5) {
-  x = cfm_sqrt((1.0 - x) * 0.5);
-  return 1.57079632679489655800 - 2.0 * __asin(x);
- }
- return __asin(x);
+	if((*(uint64_t*)&x) & 0x8000000000000000) {
+		(*(uint64_t*)&x) &= 0x7FFFFFFFFFFFFFFF;
+	 if(((*(uint64_t*)&x) >> 52) >= 1023) {
+	  x = 1.0 / x;
+	  return -(1.57079632679489655800 - __atan(x));
+	 }
+	 return -__atan(x);
+	}
+	if(((*(uint64_t*)&x) >> 52) >= 1023) {
+	 x = 1.0 / x;
+	 return 1.57079632679489655800 - __atan(x);
+	}
+ return __atan(x);
 }
 
 
 float cfm_atanf(float x) {
- if((*(uint32_t*)&x) & 0x80000000) {
-  x = (x / -cfm_sqrtf(1.0f + x * x)); //TODO : x = (x * -inv_sqrt(1.0 + x*x));
-  if(x > 0.5f) {
-   x = cfm_sqrtf((1.0f - x) * 0.5f);
-   return -(1.570796f - 2.0f * __asinf(x));
-  } 
-  return -__asinf(x);
- }
- x = (x / cfm_sqrtf(1.0f + x * x)); //TODO : x = (x * inv_sqrt(1.0 + x*x));
- if(x > 0.5f) {
-  x = cfm_sqrtf((1.0f - x) * 0.5f);
-  return 1.570796f - 2.0f * __asinf(x);
- } 
- return __asinf(x);
+	if((*(uint32_t*)&x) & 0x80000000) {
+		(*(uint32_t*)&x) &= 0x7FFFFFFF;
+	 if(((*(uint32_t*)&x) >> 23) >= 127) {
+	  x = 1.0f / x;
+	  return -(1.570796f - __atanf(x));
+	 }
+	 return -__atanf(x);
+	}
+	if(((*(uint32_t*)&x) >> 23) >= 127) {
+	 x = 1.0f / x;
+	 return 1.570796f - __atanf(x);
+	}
+ return __atanf(x);
 }
+
 
