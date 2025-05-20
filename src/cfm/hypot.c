@@ -45,6 +45,7 @@ double cfm_hypot(double x, double y) {
   "fsqrt %d[result], d3 \n"
   : [result] "=w" (x)
   : [input1] "w" (x), [input2] "w" (y)
+  : "d3", "d4"
  );
  return x;
 }
@@ -58,6 +59,7 @@ float cfm_hypotf(float x, float y) {
   "fsqrt %s[result], s3 \n"
   : [result] "=w" (x)
   : [input1] "w" (x), [input2] "w" (y)
+  : "s3", "s4"
  );
  return x;
 }
