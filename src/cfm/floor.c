@@ -53,7 +53,7 @@ double cfm_floor(double x) {
  __asm__ volatile (
   "movsd %[input], %%xmm0 \n"
   "roundsd $1, %%xmm0, %%xmm0 \n"
-  "movss %%xmm0, %[output]"
+  "movsd %%xmm0, %[output]"
   : [output]"=x"(x)
   : [input] "x"(x)
   : "xmm0"
@@ -63,7 +63,7 @@ double cfm_floor(double x) {
 
 float cfm_floorf(float x) {
  __asm__ volatile (
-  "movsd %[input], %%xmm0 \n"
+  "movss %[input], %%xmm0 \n"
   "roundss $1, %%xmm0, %%xmm0 \n"
   "movss %%xmm0, %[output]"
   : [output]"=m"(x)
@@ -91,4 +91,5 @@ float cfm_floorf(float x) {
 }
 
 #endif
+
 
