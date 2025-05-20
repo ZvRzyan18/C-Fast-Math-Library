@@ -39,6 +39,7 @@ double cfm_drem(double x, double y) {
   "fsub %d[result], %d[input1], d3 \n"
   : [result] "=w" (x)
   : [input1] "w" (x), [input2] "w" (y)
+  : "d3"
  );
  return x;
 }
@@ -51,6 +52,7 @@ float cfm_dremf(float x, float y) {
   "fsub %s[result], %s[input1], s3 \n"
   : [result] "=w" (x)
   : [input1] "w" (x), [input2] "w" (y)
+  : "s3"
  );
  return x;
 }
