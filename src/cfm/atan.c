@@ -1,28 +1,5 @@
-/*
- MIT License
-
- Copyright (c) 2025 ZvRzyan18
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
-
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 /*
  # arc tangent
@@ -46,53 +23,55 @@
  atan(x) pi_half - atanPoly(1.0 / x)
 */
 
-#define ATAN_0 0.13810761856371942
-#define ATAN_1 -0.33804446551765377
-#define ATAN_2 -0.018287143230624005
-#define ATAN_3 1.003834535410429
-#define ATAN_4 -0.00010619091421120068
+static const double DC[6] = {
+ -1.8845002614985722e-02,
+  7.0003356460380181e-02,
+ -1.3122924564035410e-01,
+  1.9875912337381560e-01,
+ -3.3331170075737049e-01,
+  1.5707963267948965e-00,
+};
 
-#define __atan(x) ((((ATAN_0 * x + ATAN_1) * x + ATAN_2) * x + ATAN_3) * x + ATAN_4)
 
-#define ATANF_0 0.138107f
-#define ATANF_1 -0.338044f
-#define ATANF_2 -0.018287f
-#define ATANF_3 1.003834f
-#define ATANF_4 -0.000106f
+static const float FC[6] = {
+ -1.88450026e-02f,
+  7.00033564e-02f,
+ -1.31229245e-01f,
+  1.98759123e-01f,
+ -3.33311700e-01f,
+  1.57079632e-00f,
+};
 
-#define __atanf(x) ((((ATANF_0 * x + ATANF_1) * x + ATANF_2) * x + ATANF_3) * x + ATANF_4)
 
 double cfm_atan(double x) {
-	if((*(uint64_t*)&x) & 0x8000000000000000) {
-		(*(uint64_t*)&x) &= 0x7FFFFFFFFFFFFFFF;
-	 if(((*(uint64_t*)&x) >> 52) >= 1023) {
-	  x = 1.0 / x;
-	  return -(1.57079632679489655800 - __atan(x));
-	 }
-	 return -__atan(x);
-	}
-	if(((*(uint64_t*)&x) >> 52) >= 1023) {
-	 x = 1.0 / x;
-	 return 1.57079632679489655800 - __atan(x);
-	}
- return __atan(x);
+ double x2, mx;
+ double_bits bits;
+ uint32_t hi;
+ bits.f = x;
+ bits.i = bits.i & 0x8000000000000000 ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
+ hi = (bits.i >> 52) >= 1023;
+ bits.f = hi ? 1.0 / bits.f : bits.f;
+ mx = bits.f;
+ x2 = mx * mx;
+ mx = mx + (mx * x2) * ((((DC[0] * x2 + DC[1]) * x2 + DC[2]) * x2 + DC[3]) * x2 + DC[4]);
+ mx = hi ? DC[5] - mx : mx;
+ return cfm_copysign(mx, x);
 }
 
 
 float cfm_atanf(float x) {
-	if((*(uint32_t*)&x) & 0x80000000) {
-		(*(uint32_t*)&x) &= 0x7FFFFFFF;
-	 if(((*(uint32_t*)&x) >> 23) >= 127) {
-	  x = 1.0f / x;
-	  return -(1.570796f - __atanf(x));
-	 }
-	 return -__atanf(x);
-	}
-	if(((*(uint32_t*)&x) >> 23) >= 127) {
-	 x = 1.0f / x;
-	 return 1.570796f - __atanf(x);
-	}
- return __atanf(x);
+ float x2, mx;
+ float_bits bits;
+ uint32_t hi;
+ bits.f = x;
+ bits.i = bits.i & 0x80000000 ? bits.i & 0x7FFFFFFF : bits.i;
+ hi = (bits.i >> 23) >= 127;
+ bits.f = hi ? 1.0f / bits.f : bits.f;
+ mx = bits.f;
+ x2 = mx * mx;
+ mx = mx + (mx * x2) * ((((FC[0] * x2 + FC[1]) * x2 + FC[2]) * x2 + FC[3]) * x2 + FC[4]);
+ mx = hi ? FC[5] - mx : mx;
+ return cfm_copysignf(mx, x);
 }
 
 

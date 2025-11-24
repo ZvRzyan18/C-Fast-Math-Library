@@ -1,60 +1,5 @@
-/*
- MIT License
-
- Copyright (c) 2025 ZvRzyan18
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
-
 #include "cfm/math.h"
 #include <stdint.h>
-
-/*
- ARM Neon Optimized Calculation
-*/
-#if defined(__aarch64__) && defined(__ARM_NEON)
-
-#include "__aarch64_sincos.h"
-/*
- we prefer to use assembly since it minimize the overhead of <arm_neon.h>
- interface
-*/
-#define __sincos1 __neon_sincos1
-#define __sincos2 __neon_sincos2
-#define __sincos3 __neon_sincos3
-#define __sincos4 __neon_sincos4
-#define __sincos5 __neon_sincos5
-#define __sincos6 __neon_sincos6
-#define __sincos7 __neon_sincos7
-#define __sincos8 __neon_sincos8
-
-#define __sincosf1 __neon_sincosf1
-#define __sincosf2 __neon_sincosf2
-#define __sincosf3 __neon_sincosf3
-#define __sincosf4 __neon_sincosf4
-#define __sincosf5 __neon_sincosf5
-#define __sincosf6 __neon_sincosf6
-#define __sincosf7 __neon_sincosf7
-#define __sincosf8 __neon_sincosf8
-
-
-#else
 
 /*
  float64 default implementation
@@ -144,8 +89,6 @@
  	 *_s = -((((-0.0284192f * x + 0.5115876f) * x + -2.9306008f) * x + 5.4310209f) * x + -1.0354793f); \
    *_c = ((((2.8419240e-2f * x - 7.3835583e-1f) * x + 6.6707706f) * x - 2.4580830e+1f) * x + 3.0950983e+1f);
 
-
-#endif
 
 
 void cfm_sincos(double x, double* _s, double* _c) {

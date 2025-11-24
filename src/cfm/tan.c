@@ -1,27 +1,3 @@
-/*
- MIT License
-
- Copyright (c) 2025 ZvRzyan18
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
-
 #include "cfm/math.h"
 #include <stdint.h>
 
@@ -37,34 +13,6 @@
  tan(x) = ________
            cos(x)
 */
-
-/*
- ARM Neon Optimized Calculation
-*/
-
-#if defined(__aarch64__) && defined(__ARM_NEON)
-
-#include "__aarch64_tan.h"
-
-#define __tan1 __neon_tan1
-#define __tan2 __neon_tan2
-#define __tan3 __neon_tan3
-#define __tan4 __neon_tan4
-#define __tan5 __neon_tan5
-#define __tan6 __neon_tan6
-#define __tan7 __neon_tan7
-#define __tan8 __neon_tan8
-
-#define __tanf1 __neon_tanf1
-#define __tanf2 __neon_tanf2
-#define __tanf3 __neon_tanf3
-#define __tanf4 __neon_tanf4
-#define __tanf5 __neon_tanf5
-#define __tanf6 __neon_tanf6
-#define __tanf7 __neon_tanf7
-#define __tanf8 __neon_tanf8
-
-#else
 
 /*
  float64
@@ -135,10 +83,6 @@
 #define __tanf8(x) \
  	       -((((-0.0284192f * x + 0.5115876f) * x + -2.9306008f) * x + 5.4310209f) * x + -1.0354793f) / \
           ((((2.8419240e-2f * x - 7.3835583e-1f) * x + 6.6707706f) * x - 2.4580830e+1f) * x + 3.0950983e+1f);
-
-
-
-#endif
 
 
 

@@ -1,44 +1,75 @@
-/*
- MIT License
-
- Copyright (c) 2025 ZvRzyan18
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
-*/
-
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
 //atan(y, x) = atan(y/x)
 
+static const double DC[7] = {
+ -1.8845002614985722e-02,
+  7.0003356460380181e-02,
+ -1.3122924564035410e-01,
+  1.9875912337381560e-01,
+ -3.3331170075737049e-01,
+  1.5707963267948965e-00,
+  3.1415926535897932e-00,
+};
+
+
+static const float FC[7] = {
+ -1.88450026e-02f,
+  7.00033564e-02f,
+ -1.31229245e-01f,
+  1.98759123e-01f,
+ -3.33311700e-01f,
+  1.57079632e-00f,
+  3.14159265e-00f,
+};
+
+
 double cfm_atan2(double y, double x) {
- if (y < 0.0 && x < 0.0)
-  return cfm_atan(y / x) - 3.14159265358979323846;
- else if(y > 0.0 && x < 0.0)
-  return cfm_atan(y / x) + 3.14159265358979323846;
- return cfm_atan(y / x);
+ double ratio, mx, x2;
+ uint32_t both_lo, y_hi_x_lo;
+ double_bits bits;
+ uint32_t hi;
+ 
+ both_lo = (y < 0.0 && x < 0.0);
+ y_hi_x_lo = (y > 0.0 && x < 0.0);
+ ratio = y / x;
+ 
+ bits.f = ratio;
+ bits.i = bits.i & 0x8000000000000000 ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
+ hi = (bits.i >> 52) >= 1023;
+ bits.f = hi ? 1.0 / bits.f : bits.f;
+ mx = bits.f;
+ x2 = mx * mx;
+ mx = mx + (mx * x2) * ((((DC[0] * x2 + DC[1]) * x2 + DC[2]) * x2 + DC[3]) * x2 + DC[4]);
+ mx = hi ? DC[5] - mx : mx;
+ mx = cfm_copysign(mx, ratio);
+ 
+ mx = both_lo ? mx - DC[6] : mx;
+ return !both_lo && y_hi_x_lo ? mx + DC[6] : mx;
 }
 
 float cfm_atan2f(float y, float x) {
- if (y < 0.0f && x < 0.0f)
-  return cfm_atanf(y / x) - 3.141592f;
- else if(y > 0.0f && x < 0.0f)
-  return cfm_atanf(y / x) + 3.141592f;
- return cfm_atanf(y / x);
+ float ratio, mx, x2;
+ uint32_t both_lo, y_hi_x_lo;
+ float_bits bits;
+ uint32_t hi;
+ 
+ both_lo = (y < 0.0f && x < 0.0f);
+ y_hi_x_lo = (y > 0.0f && x < 0.0f);
+ ratio = y / x;
+ 
+ bits.f = ratio;
+ bits.i = bits.i & 0x80000000 ? bits.i & 0x7FFFFFFF : bits.i;
+ hi = (bits.i >> 23) >= 127;
+ bits.f = hi ? 1.0f / bits.f : bits.f;
+ mx = bits.f;
+ x2 = mx * mx;
+ mx = mx + (mx * x2) * ((((FC[0] * x2 + FC[1]) * x2 + FC[2]) * x2 + FC[3]) * x2 + FC[4]);
+ mx = hi ? FC[5] - mx : mx;
+ mx = cfm_copysignf(mx, ratio);
+ 
+ mx = both_lo ? mx - FC[6] : mx;
+ return !both_lo && y_hi_x_lo ? mx + FC[6] : mx;
 }
