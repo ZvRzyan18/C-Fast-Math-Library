@@ -1,5 +1,6 @@
 #include "cfm/math.h"
 
+// Fused Multiply Add
 // TODO : implement cpu specific instruction
 #if defined(__aarch64__)
 
@@ -23,9 +24,13 @@ __asm__ (
 
 #else 
 
+//---------------DOUBLE------------------//
+
 double cfm_fma(double x, double y, double z) {
  return x * y + z;
 }
+
+//---------------FLOAT------------------//
 
 float cfm_fmaf(float x, float y, float z) {
  return x * y + z;

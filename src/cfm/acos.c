@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 /*
- arc sine
+ arc cosine
           • (x, y) = normalized value
          /|
         / |
@@ -44,6 +44,7 @@ static const float FC[5] = {
  1.57079632e-00f,
 };
 
+//---------------DOUBLE------------------//
 
 double cfm_acos(double x) {
  double x2, mx;
@@ -60,6 +61,8 @@ double cfm_acos(double x) {
  return DC[4] - cfm_copysign(mx, x);
 }
 
+
+//---------------FLOAT------------------//
 
 float cfm_acosf(float x) {
  float x2, mx;

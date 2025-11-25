@@ -6,15 +6,20 @@
 /*
  type punning for both float and doubles
 */
-typedef union {
- float f;
- uint32_t i;
-} float_bits;
+
+//---------------DOUBLE------------------//
 
 typedef union {
  double f;
  uint64_t i;
 } double_bits;
+
+//---------------FLOAT------------------//
+
+typedef union {
+ float f;
+ uint32_t i;
+} float_bits;
 
 
 #endif

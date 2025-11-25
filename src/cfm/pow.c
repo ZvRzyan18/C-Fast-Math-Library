@@ -1,97 +1,97 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
 //pow(x, y) = exp2(y * log2(x))
 // its preferable to use exp2 and log2 since they have no loss, unlike exp and log
 
-#define LOG2_0 -8.1615808498122383e-2
-#define LOG2_1 6.4514236358772082e-1
-#define LOG2_2 -2.1206751311142674
-#define LOG2_3 4.0700907918522014
-#define LOG2_4 -2.5128546239033371
+//implemented using inlined functions of exp2 and log2
+static const double DC[10] = {
+  1.3697664475809267e-02,
+  5.1690358205939469e-02,
+  2.4163844572498163e-01,
+  6.9296612266139567e-01,
+  1.0000037044659370e-00,
 
-#define __log2(x) ((((LOG2_0 * x + LOG2_1) * x + LOG2_2) * x + LOG2_3) * x + LOG2_4)
+ -8.1615808498122383e-02,
+  6.4514236358772082e-01,
+ -2.1206751311142674e-00,
+  4.0700907918522014e-00,
+ -2.5128546239033371e-00,
+};
 
-#define LOG2F_0 -8.161580e-2f
-#define LOG2F_1 6.451423e-1f
-#define LOG2F_2 -2.120675f
-#define LOG2F_3 4.070090f
-#define LOG2F_4 -2.512854f
 
-#define __log2f(x) ((((LOG2F_0 * x + LOG2F_1) * x + LOG2F_2) * x + LOG2F_3) * x + LOG2F_4)
+static const float FC[10] = {
+  1.36976644e-02f,
+  5.16903582e-02f,
+  2.41638445e-01f,
+  6.92966122e-01f,
+  1.00000370e-00f,
 
-#define EXP2_0 1.3697664475809267e-2
-#define EXP2_1 5.1690358205939469e-2
-#define EXP2_2 2.4163844572498163e-1
-#define EXP2_3 6.9296612266139567e-1
-#define EXP2_4 1.000003704465937
+ -8.16158084e-02f,
+  6.45142363e-01f,
+ -2.12067513e-00f,
+  4.07009079e-00f,
+ -2.51285462e-00f,
+};
 
-#define __exp2(x) ((((EXP2_0 * x + EXP2_1) * x + EXP2_2) * x + EXP2_3) * x + EXP2_4)
-
-#define EXP2F_0 1.369766e-2f
-#define EXP2F_1 5.169035e-2f
-#define EXP2F_2 2.416384e-1f
-#define EXP2F_3 6.929661e-1f
-#define EXP2F_4 1.000003f
-
-#define __exp2f(x) ((((EXP2F_0 * x + EXP2F_1) * x + EXP2F_2) * x + EXP2F_3) * x + EXP2F_4)
-
-#define __isignificand(x) 4607182418800017408U | ((*(uint64_t*)&x) & 0x000FFFFFFFFFFFFF)
-#define __isignificandf(x) 1065353216U | ((*(uint32_t*)&x) & 0x007FFFFF)
-
-#define __ilogb(x) (((*(uint64_t*)&x) >> 52)-1023)
-#define __ilogbf(x) (((*(uint32_t*)&x) >> 23)-127)
+//---------------DOUBLE------------------//
 
 double cfm_pow(double x, double y) {
- uint64_t m;
- double mx;
- //log2 implementation
- if((*(uint64_t*)&x >> 52) < 1023) { //x < 1.0
-  x = 1.0 / x;
-  m = __isignificand(x);
-  mx = *(double*)&m;
-  x = -y * (__ilogb(x) + __log2(mx));
- } else {
-  m = __isignificand(x);
-  mx = *(double*)&m;
-  x = y * (__ilogb(x) + __log2(mx));
- }
- //exp2 implementation
- if((*(uint64_t*)&x) & 0x8000000000000000) {// x < 0.0f
-  *(uint64_t*)&x &= 0x7FFFFFFFFFFFFFFF;
-  m = ((uint64_t)(1023 + ((uint64_t)(x))) << 52);
-  x -= (uint64_t)x;
-  return 1.0 / ((*(double*)(&m)) * __exp2(x));
- }
- m = ((uint64_t)(1023 + ((uint64_t)(x))) << 52);
- x -= (uint64_t)x;
- return (*(double*)(&m)) * __exp2(x);
+ double_bits bits, mantissa;
+ double mx, frac;
+ int64_t hi, whole;
+ uint32_t lo, sign;
+ 
+ bits.f = x;
+ lo = (bits.i >> 52) < 1023;
+ bits.f = lo ? 1.0 / bits.f : bits.f;
+ mantissa.i = 4607182418800017408U | (bits.i & 0x000FFFFFFFFFFFFF);
+ hi = ((int64_t)(bits.i >> 52) - 1023);
+ mx = mantissa.f;
+ mx = ((((DC[5] * mx + DC[6]) * mx + DC[7]) * mx + DC[8]) * mx + DC[9]);
+ mx = ((double)hi + mx) * y;
+ mx = lo ? -mx : mx;
+ 
+ bits.f = mx;
+ sign = bits.i & 0x8000000000000000;
+ bits.i = sign ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
+ mx = bits.f;
+ whole = (int64_t)mx;
+ frac = mx - (double)whole;
+ bits.i = (uint64_t)(1023 + whole) << 52;
+ mx = ((((DC[0] * frac + DC[1]) * frac + DC[2]) * frac + DC[3]) * frac + DC[4]);
+ mx = mx * bits.f;
+ return sign ? 1.0 / mx : mx;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_powf(float x, float y) {
- uint32_t m;
- float mx;
- //log2 implementation
- if((*(uint32_t*)&x >> 23) < 127) { //x < 1.0
-  x = 1.0f / x;
-  m = __isignificandf(x);
-  mx = *(float*)&m;
-  x = -y * (__ilogbf(x) + __log2f(mx));
- } else {
-  m = __isignificandf(x);
-  mx = *(float*)&m;
-  x = y * (__ilogbf(x) + __log2f(mx));
- }
- //exp2 implementation
- if((*(uint32_t*)&x) & 0x80000000) {// x < 0.0f
-  *(uint32_t*)&x &= 0x7FFFFFFF;
-  m = ((uint32_t)(127 + ((uint32_t)(x))) << 23);
-  x -= (uint64_t)x;
-  return 1.0f / ((*(float*)(&m)) * __exp2f(x));
- }
- m = ((uint32_t)(127 + ((uint64_t)(x))) << 23);
- x -= (uint64_t)x;
- return (*(float*)(&m)) * __exp2f(x);
+ float_bits bits, mantissa;
+ float mx, frac;
+ int32_t hi, whole;
+ uint32_t lo, sign;
+ 
+ bits.f = x;
+ lo = (bits.i >> 23) < 127;
+ bits.f = lo ? 1.0f / bits.f : bits.f;
+ mantissa.i = 1065353216U | (bits.i & 0x007FFFFF);
+ hi = ((int64_t)(bits.i >> 23) - 127);
+ mx = mantissa.f;
+ mx = ((((FC[5] * mx + FC[6]) * mx + FC[7]) * mx + FC[8]) * mx + FC[9]);
+ mx = ((float)hi + mx) * y;
+ mx = lo ? -mx : mx;
+ 
+ bits.f = mx;
+ sign = bits.i & 0x80000000;
+ bits.i = sign ? bits.i & 0x7FFFFFFF : bits.i;
+ mx = bits.f;
+ whole = (int32_t)mx;
+ frac = mx - (float)whole;
+ bits.i = (uint32_t)(127 + whole) << 23;
+ mx = ((((FC[0] * frac + FC[1]) * frac + FC[2]) * frac + FC[3]) * frac + FC[4]);
+ mx = mx * bits.f;
+ return sign ? 1.0f / mx : mx;
 }
 

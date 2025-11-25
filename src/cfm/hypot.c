@@ -1,7 +1,26 @@
 #include "cfm/math.h"
 #include <stdint.h>
 
+
 //TODO : implement using cpu specific instruction
+
+/*
+ hypot
+                     • (x, y) 
+                    /|
+                   / |
+  hypothenuse ->  /  |
+                 /   | -> B-side
+                /__  |
+               /   | |
+               •-------
+                 ^
+                A-side
+ 
+  hypothenuse = sqrt(A^2 + B^2) (pythagorean theorem)
+  
+*/
+
 
 /*
  hypot(x, y) = sqrt(x * x + y * y)
@@ -42,10 +61,13 @@ float cfm_hypotf(float x, float y) {
 
 #else 
 
+//---------------DOUBLE------------------//
+
 double cfm_hypot(double x, double y) {
  return cfm_sqrt(x * x + y * y);
 }
 
+//---------------FLOAT------------------//
 
 float cfm_hypotf(float x, float y) {
  return cfm_sqrtf(x * x + y * y);

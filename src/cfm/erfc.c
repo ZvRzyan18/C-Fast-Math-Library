@@ -4,6 +4,8 @@
 /*
  error function
 */
+//---------------DOUBLE------------------//
+
 double cfm_erfc(double x) {
 	if(*(uint64_t*)&x & 0x8000000000000000) {
 	 *(uint64_t*)&x &= 0x7FFFFFFFFFFFFFFF;
@@ -30,6 +32,7 @@ double cfm_erfc(double x) {
 	return 0.0;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_erfcf(float x) {
 	if(*(uint32_t*)&x & 0x80000000) {

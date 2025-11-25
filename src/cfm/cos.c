@@ -1,53 +1,111 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
-double cfm_cos(double x) {
- if((*(uint64_t*)&x) & 0x8000000000000000)
-  (*(uint64_t*)&x) &= 0x7FFFFFFFFFFFFFFF;
+/*
+ cosine
+          • (x, y) normalized value
+         /|
+        / |
+       /  |
+      /   |
+     /__  |
+    /   | |
+   •-------
+   ^
+  angle
  
- if((*(uint64_t*)&x) > 0x401921fb54442d18)
-  x = x - (int64_t)(x * 0.1591549) * 6.2831853;
-  
- switch((int64_t)(x * 0.636619772367581382432888403855)) {
- 	case 0:
-  	return ((((0.028419240510851106 * x + 0.024102418851388162) * x + -0.51522912260478604) * x + 0.0032202099707060541) * x + 0.99989227622008092);
- 	break;
- 	case 1:
-   return ((((-2.8419240510851105e-2 * x + 3.8122912768935326e-1) * x - 1.3948507907160879) * x + 1.0042835118007021) * x + 5.5948009821321672e-1);
- 	break;
- 	case 2:
-   return ((((-2.8419240510851109e-2 * x + 3.3302428998657699e-1) * x - 9.4053089873249697e-1) * x - 4.2944494317606792e-1) * x + 2.0743658093284209);
- 	break;
- 	case 3:
-   return ((((2.84192405108511e-2 * x - 7.3835583652731825e-1) * x + 6.6707706386951177) * x - 2.4580830872428483e+1) * x + 3.0950983305259838e+1);
-  break;
- }
- return 0.0;
+  x = cos(angle)
+*/
+/*
+ sin(x) = cos(pi_half - x)
+*/
+
+static const double DC[9] = {
+  1.4837952430518087e-07,
+ -8.6715056458098863e-06,
+  2.6041160896346602e-04,
+ -3.1249990095943724e-03,
+  6.2499999689599175e-03,
+
+  0.1591549430918950e-00, //10 inv tau
+  0.6366197723675810e-00, //11 inv pio2
+  1.5707963267948965e-00, //12 pio2
+  6.2831853071795862e-00, //13 tau
+};
+
+
+static const float FC[9] = {
+  1.48379524e-07,
+ -8.67150564e-06,
+  2.60411608e-04,
+ -3.12499900e-03,
+  6.24999996e-03,
+
+  0.15915494e-00, //10 inv tau
+  0.63661977e-00, //11 inv pio2
+  1.57079632e-00, //12 pio2
+  6.28318530e-00, //13 tau
+};
+
+//---------------DOUBLE------------------//
+
+double cfm_cos(double x) {
+ double mx, mx_c, x2_c, out_c, a;
+ uint32_t flip_c, q;
+ uint64_t sign_c;
+ double_bits bits;
+ 
+ bits.f = x;
+ bits.i = bits.i & 0x7FFFFFFFFFFFFFFF;
+ a = bits.f;
+ 
+ //remainder
+ a = a - (double)(uint64_t)(a * DC[5]) * DC[8];
+ q = (uint32_t)(a * DC[6]);
+ mx = a;
+ mx = mx - (DC[7] * (double)q);
+ mx_c = mx;
+ 
+ flip_c = (q == 1 || q == 3);
+ sign_c = (uint64_t)(q == 1 || q == 2) << 63;
+ mx_c = flip_c ? (mx_c - DC[7]) : mx_c;
+ x2_c = mx_c * mx_c;
+ out_c = ((((DC[0] * x2_c + DC[1]) * x2_c + DC[2]) * x2_c + DC[3]) * x2_c + DC[4]);
+ out_c = out_c * 160.0;
+
+ bits.f = out_c;
+ bits.i |= sign_c;
+ return bits.f;
 }
 
-
+//---------------FLOAT------------------//
 
 float cfm_cosf(float x) {
- if((*(uint32_t*)&x) & 0x80000000)
-  (*(uint32_t*)&x) &= 0x7FFFFFFF;
+ float mx, mx_c, x2_c, out_c, a;
+ uint32_t sign_c, flip_c, q;
+ float_bits bits;
  
- if((*(uint32_t*)&x) > 0x40c90fdb)
-  x = x - (int64_t)(x * 0.1591549f) * 6.2831853f;
-  
- switch((int64_t)(x * 0.6366197f)) {
- 	case 0:
-  	return ((((0.0284192f * x + 0.0241024f) * x + -0.5152291f) * x + 0.0032202f) * x + 0.9998922f);
- 	break;
- 	case 1:
-   return ((((-2.8419240e-2f * x + 3.8122912e-1f) * x - 1.3948507f) * x + 1.0042835f) * x + 5.5948009e-1f);
- 	break;
- 	case 2:
-   return ((((-2.8419240e-2f * x + 3.3302428e-1f) * x - 9.4053089e-1f) * x - 4.2944494e-1f) * x + 2.0743658f);
- 	break;
- 	case 3:
-   return ((((2.8419240e-2f * x - 7.3835583e-1f) * x + 6.6707706f) * x - 2.4580830e+1f) * x + 3.0950983e+1f);
-  break;
- }
- return 0.0f;
+ bits.f = x;
+ bits.i = bits.i & 0x7FFFFFFF;
+ a = bits.f;
+ 
+ //remainder
+ a = a - (float)(uint32_t)(a * FC[5]) * FC[8];
+ q = (uint32_t)(a * FC[6]);
+ mx = a;
+ mx = mx - (FC[7] * (float)q);
+ mx_c = mx;
+ 
+ flip_c = (q == 1 || q == 3);
+ sign_c = (q == 1 || q == 2) << 31;
+ mx_c = flip_c ? (mx_c - FC[7]) : mx_c;
+ x2_c = mx_c * mx_c;
+ out_c = ((((FC[0] * x2_c + FC[1]) * x2_c + FC[2]) * x2_c + FC[3]) * x2_c + FC[4]);
+ out_c = out_c * 160.0f;
+
+ bits.f = out_c;
+ bits.i |= sign_c;
+ return bits.f;
 }
 

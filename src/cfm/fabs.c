@@ -1,8 +1,10 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
 #if defined(__aarch64__)
 
+//TODO : just simply use abs instruction
 double cfm_fabs(double x) {
  __asm__ volatile(
   "fmov x0, %d[result] \n"
@@ -29,14 +31,22 @@ float cfm_fabsf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_fabs(double x) {
- uint64_t m = (*(uint64_t*)&x) & 0x7FFFFFFFFFFFFFFF;
- return *(double*)&m;
+ double_bits bits;
+ bits.f = x;
+ bits.i = bits.i & 0x7FFFFFFFFFFFFFFF;
+ return bits.f;
 }
 
+//---------------DOUBLE------------------//
+
 float cfm_fabsf(float x) {
- uint32_t m = (*(uint32_t*)&x) & 0x7FFFFFFF;
- return *(float*)&m;
+ float_bits bits;
+ bits.f = x;
+ bits.i = bits.i & 0x7FFFFFFF;
+ return bits.f;
 }
 
 #endif

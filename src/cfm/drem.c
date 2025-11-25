@@ -34,10 +34,13 @@ float cfm_dremf(float x, float y) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_drem(double x, double y) {
  return x - cfm_round(x / y) * y;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_dremf(float x, float y) {
  return x - cfm_roundf(x / y) * y;

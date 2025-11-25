@@ -4,6 +4,22 @@
 
 //atan(y, x) = atan(y/x)
 
+/*
+ arc tangent
+          • (x, y) normalized value
+         /|
+        / |
+       /  |
+      /   |
+     /__  |
+    /   | |
+   •-------
+     ^
+    angle
+ 
+  angle = atan2(y, x)
+*/
+
 static const double DC[7] = {
  -1.8845002614985722e-02,
   7.0003356460380181e-02,
@@ -25,6 +41,7 @@ static const float FC[7] = {
   3.14159265e-00f,
 };
 
+//---------------DOUBLE------------------//
 
 double cfm_atan2(double y, double x) {
  double ratio, mx, x2;
@@ -49,6 +66,8 @@ double cfm_atan2(double y, double x) {
  mx = both_lo ? mx - DC[6] : mx;
  return !both_lo && y_hi_x_lo ? mx + DC[6] : mx;
 }
+
+//---------------FLOAT------------------//
 
 float cfm_atan2f(float y, float x) {
  float ratio, mx, x2;

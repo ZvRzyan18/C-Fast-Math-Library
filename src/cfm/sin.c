@@ -1,63 +1,114 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
+/*
+ sine
+          • (x, y) normalized value
+         /|
+        / |
+       /  |
+      /   |
+     /__  |
+    /   | |
+   •-------
+   ^
+  angle
+ 
+  y = sin(angle)
+*/
 /*
  sin(x) = cos(pi_half - x)
 */
 
-double cfm_sin(double x) {
- x = 1.57079632679489655800 - x;
+static const double DC[9] = {
+ -2.4429308463105237e-08,
+  2.7548796448694666e-06,
+ -1.9841222142485878e-04,
+  8.3333332398349402e-03,
+ -1.6666666666373373e-01, //4
 
- //cosine implementation
- if((*(uint64_t*)&x) & 0x8000000000000000)
-  (*(uint64_t*)&x) &= 0x7FFFFFFFFFFFFFFF;
+  0.1591549430918950e-00, //5 inv tau
+  0.6366197723675810e-00, //6 inv pio2
+  1.5707963267948965e-00, //7 pio2
+  6.2831853071795862e-00, //8 tau
+};
+
+static const float FC[9] = {
+ -2.44293084e-08f,
+  2.75487964e-06f,
+ -1.98412221e-04f,
+  8.33333323e-03f,
+ -1.66666666e-01f, //4
+
+  0.15915494e-00f, //5 inv tau
+  0.63661977e-00f, //6 inv pio2
+  1.57079632e-00f, //7 pio2
+  6.28318530e-00f, //8 tau
+};
+
+//---------------DOUBLE------------------//
+
+double cfm_sin(double x) {
+ double mx, mx_s, x2_s, out_s, a;
+ uint32_t flip_s, q;
+ uint64_t sign_s;
+ double_bits bits;
  
- if((*(uint64_t*)&x) > 0x401921fb54442d18)
-  x = x - (int64_t)(x * 0.1591549) * 6.2831853;
-  
- switch((int64_t)(x * 0.636619772367581382432888403855)) {
- 	case 0:
-  	return ((((0.028419240510851106 * x + 0.024102418851388162) * x + -0.51522912260478604) * x + 0.0032202099707060541) * x + 0.99989227622008092);
- 	break;
- 	case 1:
-   return ((((-2.8419240510851105e-2 * x + 3.8122912768935326e-1) * x - 1.3948507907160879) * x + 1.0042835118007021) * x + 5.5948009821321672e-1);
- 	break;
- 	case 2:
-   return ((((-2.8419240510851109e-2 * x + 3.3302428998657699e-1) * x - 9.4053089873249697e-1) * x - 4.2944494317606792e-1) * x + 2.0743658093284209);
- 	break;
- 	case 3:
-   return ((((2.84192405108511e-2 * x - 7.3835583652731825e-1) * x + 6.6707706386951177) * x - 2.4580830872428483e+1) * x + 3.0950983305259838e+1);
-  break;
- }
- return 0.0;
+ bits.f = x;
+ sign_s = bits.i & 0x8000000000000000;
+ bits.i = sign_s ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
+ a = bits.f;
+ 
+ //remainder
+ a = a - (double)(uint64_t)(a * DC[5]) * DC[8];
+ q = (uint32_t)(a * DC[6]);
+ mx = a;
+ mx = mx - (DC[7] * (double)q);
+ mx_s = mx;
+ 
+ flip_s = (q == 1 || q == 3);
+ sign_s = sign_s ^ ((uint64_t)(q == 2 || q == 3) << 63);
+ mx_s = flip_s ? (DC[7] - mx_s) : mx_s;
+ x2_s = mx_s * mx_s;
+ out_s = ((((DC[0] * x2_s + DC[1]) * x2_s + DC[2]) * x2_s + DC[3]) * x2_s + DC[4]);
+ out_s = out_s * (x2_s * mx_s) + mx_s;
+
+ bits.f = out_s;
+ bits.i |= sign_s;
+ return bits.f;
 }
 
 
+//---------------FLOAT------------------//
 
 float cfm_sinf(float x) {
- x = 1.570796f - x;
-
- //cosine implementation
- if((*(uint32_t*)&x) & 0x80000000)
-  (*(uint32_t*)&x) &= 0x7FFFFFFF;
+ float mx, mx_s, x2_s, out_s, a;
+ uint32_t sign_s, flip_s, q;
+ float_bits bits;
  
- if((*(uint32_t*)&x) > 0x40c90fdb)
-  x = x - (int64_t)(x * 0.1591549f) * 6.2831853f;
-  
- switch((int64_t)(x * 0.6366197f)) {
- 	case 0:
-  	return ((((0.0284192f * x + 0.0241024f) * x + -0.5152291f) * x + 0.0032202f) * x + 0.9998922f);
- 	break;
- 	case 1:
-   return ((((-2.8419240e-2f * x + 3.8122912e-1f) * x - 1.3948507f) * x + 1.0042835f) * x + 5.5948009e-1f);
- 	break;
- 	case 2:
-   return ((((-2.8419240e-2f * x + 3.3302428e-1f) * x - 9.4053089e-1f) * x - 4.2944494e-1f) * x + 2.0743658f);
- 	break;
- 	case 3:
-   return ((((2.8419240e-2f * x - 7.3835583e-1f) * x + 6.6707706f) * x - 2.4580830e+1f) * x + 3.0950983e+1f);
-  break;
- }
- return 0.0f;
+ bits.f = x;
+ sign_s = bits.i & 0x80000000;
+ bits.i = sign_s ? bits.i & 0x7FFFFFFF : bits.i;
+ a = bits.f;
+ 
+ //remainder
+ a = a - (float)(uint32_t)(a * FC[5]) * FC[8];
+ q = (uint32_t)(a * FC[6]);
+ mx = a;
+ mx = mx - (FC[7] * (float)q);
+ mx_s = mx;
+ 
+ flip_s = (q == 1 || q == 3);
+ sign_s = sign_s ^ ((uint32_t)(q == 2 || q == 3) << 31);
+ mx_s = flip_s ? (FC[7] - mx_s) : mx_s;
+ x2_s = mx_s * mx_s;
+
+ out_s = ((((FC[0] * x2_s + FC[1]) * x2_s + FC[2]) * x2_s + FC[3]) * x2_s + FC[4]);
+ out_s = out_s * (x2_s * mx_s) + mx_s;
+
+ bits.f = out_s;
+ bits.i |= sign_s;
+ return bits.f;
 }
 

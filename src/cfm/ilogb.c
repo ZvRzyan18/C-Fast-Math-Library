@@ -1,12 +1,22 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
-//extract float and double exponent and return it as integer
+//extract float and double exponent 
+//and return it as signed integer
+//---------------DOUBLE------------------//
+
 int cfm_ilogb(double x) {
-	return (int)(((((*(int64_t*)&x) & 0x7FFFFFFFFFFFFFFF) >> 52)-1023));
+	double_bits bits;
+	bits.f = x; //make sure its signed int before subtracting
+	return ((int)((bits.i & 0x7FFFFFFFFFFFFFFF) >> 52) - 1023);
 }
 
+//---------------FLOAT------------------//
+
 int cfm_ilogbf(float x) {
-	return (int)(((((*(int32_t*)&x) & 0x7FFFFFFF) >> 23)-127));
+	float_bits bits;
+	bits.f = x; //make sure its signed int before subtracting
+	return ((int)((bits.i & 0x7FFFFFFF) >> 23) - 127);
 }
 

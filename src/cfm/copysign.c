@@ -5,6 +5,8 @@
 /*
  copy the sign bit of floating point
 */
+//---------------DOUBLE------------------//
+
 double cfm_copysign(double x, double sign) {
  double_bits bits_a, bits_b, out_bits;
  bits_a.f = x; bits_b.f = sign;
@@ -12,6 +14,7 @@ double cfm_copysign(double x, double sign) {
  return out_bits.f;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_copysignf(float x, float sign) {
  float_bits bits_a, bits_b, out_bits;
