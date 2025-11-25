@@ -1,6 +1,10 @@
 #include "cfm/math.h"
+#include "cfm/float_bits.h"
 #include <stdint.h>
 
+/*
+ scale the floating point base on its radix value
+*/
 #if defined(__aarch64__)
 
 __asm__ (
@@ -65,20 +69,28 @@ __asm__ (
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_scalbn(double x, int _exp) {
- uint64_t exponent = ((((*(int64_t*)&x) & 0x7FFFFFFFFFFFFFFF) >> 52) + _exp) << 52;
- uint64_t mantissa = ((*(uint64_t*)&x) & 0x000FFFFFFFFFFFFF);
- uint64_t sign_bit = ((*(uint64_t*)&x) & 0x8000000000000000) << 63;
- uint64_t value = sign_bit | exponent | mantissa;
- return *(double*)&value;
+ double_bits bits;
+ bits.f = x;
+ uint64_t exponent = (((bits.i & 0x7FFFFFFFFFFFFFFF) >> 52) + _exp) << 52;
+ uint64_t mantissa = (bits.i & 0x000FFFFFFFFFFFFF);
+ uint64_t sign_bit = (bits.i) & 0x8000000000000000) << 63;
+ bits.i = sign_bit | exponent | mantissa;
+ return bits.f;
 }
 
+//---------------FLOAT------------------//
+
 float cfm_scalbnf(float x, int _exp) {
- uint32_t exponent = ((((*(int32_t*)&x) & 0x7FFFFFFF) >> 23) + _exp) << 23;
- uint32_t mantissa = ((*(uint32_t*)&x) & 0x007FFFFF);
- uint64_t sign_bit = ((*(uint32_t*)&x) & 0x80000000) << 31;
- uint32_t value = sign_bit | exponent | mantissa;
- return *(float*)&value;
+ float_bits bits;
+ bits.f = x;
+ uint32_t exponent = (((bits.i & 0x7FFFFFFF) >> 23) + _exp) << 23;
+ uint32_t mantissa = (bits.i & 0x007FFFFF);
+ uint64_t sign_bit = (bits.i & 0x80000000) << 31;
+ bits.i = sign_bit | exponent | mantissa;
+ return bits.f;
 }
 
 #endif

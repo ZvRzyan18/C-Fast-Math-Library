@@ -50,9 +50,13 @@ float cfm_truncf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_trunc(double x) {
  return (double)(int64_t)x;
 }
+
+//---------------FLOAT------------------//
 
 float cfm_truncf(float x) {
  return (float)(int64_t)x;

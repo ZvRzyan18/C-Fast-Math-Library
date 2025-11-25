@@ -51,6 +51,7 @@ float cfm_ceilf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
 
 double cfm_ceil(double x) {
  if(*(uint64_t*)&x & 0x8000000000000000)
@@ -60,6 +61,7 @@ double cfm_ceil(double x) {
  return (int64_t)x;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_ceilf(float x) {
  if(*(uint32_t*)&x & 0x80000000)

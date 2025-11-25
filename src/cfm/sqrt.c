@@ -49,6 +49,8 @@ float cfm_sqrtf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_sqrt(double x) {
 /*
  Quake III fast inv sqrt
@@ -61,6 +63,7 @@ double cfm_sqrt(double x) {
  return x * f;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_sqrtf(float x) {
 /*

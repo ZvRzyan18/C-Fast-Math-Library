@@ -4,9 +4,13 @@
 /*
  hyperbolic arc sine
 */
+//---------------DOUBLE------------------//
+
 double cfm_asinh(double x) {
 	return cfm_log(x + cfm_sqrt(x * x + 1.0));
 }
+
+//---------------FLOAT------------------//
 
 
 float cfm_asinhf(float x) {

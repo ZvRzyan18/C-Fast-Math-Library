@@ -4,10 +4,14 @@
 /*
  hyperbolic sine
 */
+//---------------DOUBLE------------------//
+
 double cfm_sinh(double x) {
 	double exp = cfm_exp(x);
 	return (exp - (1.0 / exp)) * 0.5;
 }
+
+//---------------FLOAT------------------//
 
 float cfm_sinhf(float x) {
 	float exp = cfm_expf(x);

@@ -45,6 +45,7 @@ static const float FC[5] = {
  1.57079632e-00f,
 };
 
+//---------------DOUBLE------------------//
 
 double cfm_asin(double x) {
  double x2, mx;
@@ -61,6 +62,7 @@ double cfm_asin(double x) {
  return cfm_copysign(mx, x);
 }
 
+//---------------FLOAT------------------//
 
 float cfm_asinf(float x) {
  float x2, mx;

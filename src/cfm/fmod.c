@@ -34,11 +34,13 @@ float cfm_fmodf(float x, float y) {
 
 #else
 
+//---------------DOUBLE------------------//
 
 double cfm_fmod(double x, double y) {
  return x - cfm_trunc(x / y) * y;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_fmodf(float x, float y) {
  return x - cfm_truncf(x / y) * y;

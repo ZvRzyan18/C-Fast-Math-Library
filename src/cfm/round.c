@@ -52,6 +52,8 @@ float cfm_roundf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_round(double x) {
  if(*(uint64_t*)&x & 0x8000000000000000) {
   if((-x - (int64_t)-x) >= 0.5)
@@ -63,6 +65,7 @@ double cfm_round(double x) {
  return (double)((uint64_t)x);
 }
 
+//---------------FLOAT------------------//
 
 float cfm_roundf(float x) {
  if(*(uint32_t*)&x & 0x80000000) {

@@ -51,6 +51,8 @@ float cfm_floorf(float x) {
 
 #else
 
+//---------------DOUBLE------------------//
+
 double cfm_floor(double x) {
  if(*(uint64_t*)&x & 0x8000000000000000) {
   return (double)(((int64_t)x)-1);
@@ -58,6 +60,7 @@ double cfm_floor(double x) {
  return (double)(uint64_t)x;
 }
 
+//---------------FLOAT------------------//
 
 float cfm_floorf(float x) {
  if(*(uint32_t*)&x & 0x80000000) {

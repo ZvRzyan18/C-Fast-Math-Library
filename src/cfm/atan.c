@@ -1,6 +1,25 @@
 #include "cfm/math.h"
 #include "cfm/float_bits.h"
 #include <stdint.h>
+
+
+/*
+ arc tangent
+          • (x, y) normalized value
+         /|
+        / |
+       /  |
+      /   |
+     /__  |
+    /   | |
+   •-------
+     ^
+    angle
+ 
+  angle = atan(y/x)
+*/
+
+
 /*
  # arc tangent
                      ________
@@ -42,6 +61,7 @@ static const float FC[6] = {
   1.57079632e-00f,
 };
 
+//---------------DOUBLE------------------//
 
 double cfm_atan(double x) {
  double x2, mx;
@@ -58,6 +78,7 @@ double cfm_atan(double x) {
  return cfm_copysign(mx, x);
 }
 
+//---------------FLOAT------------------//
 
 float cfm_atanf(float x) {
  float x2, mx;
