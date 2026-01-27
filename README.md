@@ -8,7 +8,7 @@ but it is only implemented for float and double
 # This library can be used for
  * Graphics Programming
  * Embedded Systems
- * Game develeopment
+ * Game development
    
 # Math Functions
 inf/nan : 
