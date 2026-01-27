@@ -64,13 +64,12 @@ static const float FC[14] = {
 
 double cfm_tan(double x) {
  double mx, mx_s, mx_c, x2_c, x2_s, out_s, out_c, a;
- uint32_t flip_s, flip_c, q;
- uint64_t sign_s, sign_c;
+ uint32_t flip, q;
+ uint64_t sign;
  double_bits bits;
  
  bits.f = x;
- sign_s = bits.i & 0x8000000000000000;
- bits.i = sign_s ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
+ bits.i = bits.i & 0x7FFFFFFFFFFFFFFF;
  a = bits.f;
  
  //remainder
@@ -82,17 +81,15 @@ double cfm_tan(double x) {
  
  //hoping that this is pipeline optimized 
  //execution
+ 
+ flip = (q == 1 || q == 3);
+
+ mx = flip ? (DC[12] - mx) : mx;
+
  mx_c = mx;
  mx_s = mx;
- 
- flip_s = (q == 1 || q == 3);
- flip_c = (q == 1 || q == 3);
- sign_c = (uint64_t)(q == 1 || q == 2) << 63;
 
- sign_s = sign_s ^ ((uint64_t)(q == 2 || q == 3) << 63);
-
- mx_s = flip_s ? (DC[12] - mx_s) : mx_s;
- mx_c = flip_c ? (mx_c - DC[12]) : mx_c;
+ sign = (uint64_t)(flip) << 63;
 
  x2_s = mx_s * mx_s;
  x2_c = mx_c * mx_c;
@@ -103,49 +100,41 @@ double cfm_tan(double x) {
  out_s = out_s * (x2_s * mx_s) + mx_s;
  out_c = out_c * 160.0;
 
- bits.f = out_s;
- bits.i |= sign_s;
- out_s = bits.f;
-
- bits.f = out_c;
- bits.i |= sign_c;
- out_c = bits.f;
- 
- return out_s/out_c;
+ bits.f = out_s/out_c;
+ bits.i |= sign;
+ return bits.f;
 }
 
 //---------------FLOAT------------------//
 
 float cfm_tanf(float x) {
  float mx, mx_s, mx_c, x2_c, x2_s, out_s, out_c, a;
- uint32_t sign_s, sign_c, flip_s, flip_c, q;
+ uint32_t flip, q;
+ uint32_t sign;
  float_bits bits;
  
  bits.f = x;
- sign_s = bits.i & 0x80000000;
- bits.i = sign_s ? bits.i & 0x7FFFFFFF : bits.i;
+ bits.i = bits.i & 0x7FFFFFFF;
  a = bits.f;
  
  //remainder
- a = a - (float)(uint32_t)(a * FC[10]) * FC[13];
+ a = a - (float)(uint32_t)(a * DC[10]) * DC[13];
  
- q = (uint32_t)(a * FC[11]);
+ q = (uint32_t)(a * DC[11]);
  mx = a;
  mx = mx - (FC[12] * (float)q);
  
  //hoping that this is pipeline optimized 
  //execution
+ 
+ flip = (q == 1 || q == 3);
+
+ mx = flip ? (FC[12] - mx) : mx;
+
  mx_c = mx;
  mx_s = mx;
- 
- flip_s = (q == 1 || q == 3);
- flip_c = (q == 1 || q == 3);
- sign_c = (uint64_t)(q == 1 || q == 2) << 31;
 
- sign_s = sign_s ^ ((q == 2 || q == 3) << 31);
-
- mx_s = flip_s ? (FC[12] - mx_s) : mx_s;
- mx_c = flip_c ? (mx_c - FC[12]) : mx_c;
+ sign = (uint32_t)(flip) << 31;
 
  x2_s = mx_s * mx_s;
  x2_c = mx_c * mx_c;
@@ -156,14 +145,8 @@ float cfm_tanf(float x) {
  out_s = out_s * (x2_s * mx_s) + mx_s;
  out_c = out_c * 160.0f;
 
- bits.f = out_s;
- bits.i |= sign_s;
- out_s = bits.f;
-
- bits.f = out_c;
- bits.i |= sign_c;
- out_c = bits.f;
- 
- return out_s/out_c;
+ bits.f = out_s/out_c;
+ bits.i |= sign;
+ return bits.f;
 }
 
