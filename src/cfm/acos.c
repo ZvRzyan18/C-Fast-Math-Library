@@ -18,64 +18,49 @@
   angle = acos(x)
 */
 /*
- # arc cosine
- • for x between [0, 0.5] (4 degree polynomial)
- acosPoly(x) = c0 * x + c1 * x² + c2 * x³ + c3 * x⁴....
- acos(x) = acosPoly(x)
- 
- • for x between [0.5, 1.0]
-                                ____________
- acos(x) = pi - 2.0 * acosPoly(√ (1 - x) / 2)
+ approxiamtion
+
+ acos(x) = acos(x)/sqrt(1.0 - x), interval : [0, 1]
 */
 
 static const double DC[5] = {
- 7.7426018886311967e-02,
- 2.6132143752749238e-02,
- 7.7127028227080299e-02,
- 1.6662925962529435e-01,
- 1.5707963267948965e-00,
+ -0.1872986877659853e-01,
+  0.7426234494007040e-01,
+ -0.2121152405852734e-00,
+  1.5707288189560218e-00,
+  3.1415926535897930e-00,
 };
 
 static const float FC[5] = {
- 7.74260188e-02f,
- 2.61321437e-02f,
- 7.71270282e-02f,
- 1.66629259e-01f,
- 1.57079632e-00f,
+ -0.18729868e-01f,
+  0.74262344e-01f,
+ -0.21211524e-00f,
+  1.57072881e-00f,
+  3.14159265e-00f,
 };
 
 //---------------DOUBLE------------------//
 
 double cfm_acos(double x) {
- double x2, mx;
- uint32_t hi;
- double_bits bits;
- bits.f = x;
- bits.i = (bits.i & 0x8000000000000000) ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
- hi = bits.f > 0.5;
- bits.f = hi ? cfm_sqrt((1.0 - bits.f) * 0.5) : bits.f;
- mx = bits.f;
- x2 = mx * mx;
- mx = mx + (mx * x2) * (((DC[0] * x2 + DC[1]) * x2 + DC[2]) * x2 + DC[3]);
- mx = hi ? DC[4] - (mx + mx) : mx;
- return DC[4] - cfm_copysign(mx, x);
+ double mx;
+ double mx1;
+ double out;
+ mx = cfm_fabs(x);
+ mx1 = (((DC[0] * mx + DC[1]) * mx + DC[2]) * mx + DC[3]);
+ out = mx1 * cfm_sqrt(1.0 - mx);
+ return ((x < 0.0) ? DC[4] - out : out);
 }
 
 
 //---------------FLOAT------------------//
 
 float cfm_acosf(float x) {
- float x2, mx;
- uint32_t hi;
- float_bits bits;
- bits.f = x;
- bits.i = (bits.i & 0x80000000) ? bits.i & 0x7FFFFFFF : bits.i;
- hi = bits.f > 0.5f;
- bits.f = hi ? cfm_sqrtf((1.0f - bits.f) * 0.5f) : bits.f;
- mx = bits.f;
- x2 = mx * mx;
- mx = mx + (mx * x2) * (((FC[0] * x2 + FC[1]) * x2 + FC[2]) * x2 + FC[3]);
- mx = hi ? FC[4] - (mx + mx) : mx;
- return FC[4] - cfm_copysignf(mx, x);
+ float mx;
+ float mx1;
+ float out;
+ mx = cfm_fabsf(x);
+ mx1 = (((FC[0] * mx + FC[1]) * mx + FC[2]) * mx + FC[3]);
+ out = mx1 * cfm_sqrtf(1.0f - mx);
+ return ((x < 0.0f) ? FC[4] - out : out);
 }
 

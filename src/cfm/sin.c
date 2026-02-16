@@ -19,6 +19,12 @@
 */
 /*
  sin(x) = cos(pi_half - x)
+
+
+ approximation : [0, PI/2]
+ 
+ f(x) = (sin(sqrt(x))-sqrt(x)) / (x * sqrt(x))
+ sin(x) = x + x^3 * f(x^2)
 */
 
 static const double DC[9] = {
