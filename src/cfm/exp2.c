@@ -22,61 +22,62 @@
 
     exp2(x) = exp(x * ln(2))
 */
-
+/*
+ approximation : f(x) = exp2(x) for [0, 0.5]
+*/
 static const double DC[5] = {
- 1.3697664475809267e-02,
- 5.1690358205939469e-02,
- 2.4163844572498163e-01,
- 6.9296612266139567e-01,
- 1.0000037044659370e-00,
+ 0.1145799711195791e-01,
+ 0.5467185395011767e-01,
+ 0.2403778499718522e-00,
+ 0.6931375989500995e-00,
+ 1.0000000969209102e-00
 };
 
 
+
 static const float FC[5] = {
- 1.369766e-02f,
- 5.169035e-02f,
- 2.416384e-01f,
- 6.929661e-01f,
- 1.000003e-00f,
+ 0.11457997e-01f,
+ 0.54671853e-01f,
+ 0.24037784e-00f,
+ 0.69313759e-00f,
+ 1.00000009e-00f
 };
 
 //---------------DOUBLE------------------//
 
 double cfm_exp2(double x) {
- double mx, frac;
- uint64_t sign;
+ double mx, a;
+	double_bits bits;
  int64_t whole;
- double_bits bits;
- 
- bits.f = x;
- sign = bits.i & 0x8000000000000000;
- bits.i = sign ? bits.i & 0x7FFFFFFFFFFFFFFF : bits.i;
- mx = bits.f;
- whole = (int64_t)mx;
- frac = mx - (double)whole;
- bits.i = (uint64_t)(1023 + whole) << 52;
- mx = ((((DC[0] * frac + DC[1]) * frac + DC[2]) * frac + DC[3]) * frac + DC[4]);
- mx = mx * bits.f;
- return sign ? 1.0 / mx : mx;
+
+ if(cfm_fabs(x) < 0.5) {
+ 	a = x;
+  return (((DC[0] * a + DC[1]) * a + DC[2]) * a + DC[3]) * a + DC[4];
+ }
+	a = x;
+ whole = (int64_t)(a - 0.5);
+ a = a - ((double)whole);
+ bits.i = (uint64_t)((int64_t)(1023 + whole) << 52);
+ mx = (((DC[0] * a + DC[1]) * a + DC[2]) * a + DC[3]) * a + DC[4];
+ return bits.f * mx;
 }
 
 //---------------FLOAT------------------//
 
 float cfm_exp2f(float x) {
- float mx, frac;
- uint32_t sign;
+ float mx, a;
+	float_bits bits;
  int32_t whole;
- float_bits bits;
- 
- bits.f = x;
- sign = bits.i & 0x80000000;
- bits.i = sign ? bits.i & 0x7FFFFFFF : bits.i;
- mx = bits.f;
- whole = (int32_t)mx;
- frac = mx - (float)whole;
- bits.i = (uint32_t)(127 + whole) << 23;
- mx = ((((FC[0] * frac + FC[1]) * frac + FC[2]) * frac + FC[3]) * frac + FC[4]);
- mx = mx * bits.f;
- return sign ? 1.0f / mx : mx;
+
+ if(cfm_fabsf(x) < 0.5f) {
+ 	a = x;
+  return (((FC[0] * a + FC[1]) * a + FC[2]) * a + FC[3]) * a + FC[4];
+ }
+	a = x;
+ whole = (int32_t)(a - 0.5f);
+ a = a - ((float)whole);
+ bits.i = (uint32_t)((int32_t)(127 + whole) << 23);
+ mx = (((FC[0] * a + FC[1]) * a + FC[2]) * a + FC[3]) * a + FC[4];
+ return bits.f * mx;
 }
 
